@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.microblink.activity.ScanCard;
 import com.microblink.recognizers.BaseRecognitionResult;
@@ -16,15 +18,22 @@ import com.microblink.recognizers.settings.RecognitionSettings;
 import com.microblink.recognizers.settings.RecognizerSettings;
 import com.microblink.results.ocr.OcrResult;
 
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
     Button scan;
-
+    LinearLayout layout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        layout = (LinearLayout) findViewById(R.id.linear_1);
+        layout.removeAllViews();
 
         scan = (Button)findViewById(R.id.btn_scan);
         scan.setOnClickListener(new View.OnClickListener() {
@@ -64,8 +73,20 @@ public class MainActivity extends AppCompatActivity {
                         MRTDRecognitionResult info = (MRTDRecognitionResult) baseResult;
 
                         if(info.isValid() && !info.isEmpty()){
-                            String primanyId = info.getPrimaryId();
-                            String documentNumber = info.getDocumentNumber();
+                            ArrayList<String> informations = new ArrayList<>();
+                            informations.add(info.getAlienNumber());
+                            informations.add(info.getPrimaryId());
+                            informations.add(info.getSecondaryId());
+                            informations.add(info.getSex());
+                            informations.add(info.getRawDateOfBirth());
+                            informations.add(info.getDocumentType().toString());
+                            informations.add(info.getDocumentNumber());
+                            informations.add(info.getRawDateOfExpiry());
+                            informations.add(info.getNationality());
+                            informations.add(info.getImmigrantCaseNumber());
+                            informations.add(info.getMRZText());
+
+                            buildView(informations);
                         }else {
                             OcrResult rawOcr = info.getOcrResult();
                         }
@@ -81,4 +102,13 @@ public class MainActivity extends AppCompatActivity {
 
         return new RecognizerSettings[] { sett };
     }
+
+    public void buildView(ArrayList<String> infos){
+        for(String info: infos){
+            TextView showView = new TextView(this);
+            showView.setText(info);
+            layout.addView(showView);
+        }
+    }
+
 }
